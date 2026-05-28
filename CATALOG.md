@@ -20,6 +20,13 @@ Pre-built CPython binaries from the [python-build-standalone](https://github.com
 - **CPython 3.13** — current stable
 - **CPython 3.12** — previous stable (LTS)
 
+## Variants
+
+- **default** (unprefixed tags) — full `install_only` build.
+- **slim** (`slim-` prefixed tags) — stripped `install_only_stripped` build; smaller download, debug symbols removed.
+
+Use `cpython:3.13` for the default 3.13.x build, or `cpython:slim-3.13` for the slim flavor.
+
 ## Version scheme
 
 OCX versions match Python patch versions directly (e.g., `3.13.9`). Pre-release versions (alpha, beta, rc) are excluded.

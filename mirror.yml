@@ -9,17 +9,34 @@ source:
     command: ["python3", "scripts/generate.py"]
     timeout_seconds: 240
 
-assets:
-  linux/amd64:
-    - "cpython-.*-x86_64-unknown-linux-gnu-install_only\\.tar\\.gz$"
-  linux/arm64:
-    - "cpython-.*-aarch64-unknown-linux-gnu-install_only\\.tar\\.gz$"
-  darwin/amd64:
-    - "cpython-.*-x86_64-apple-darwin-install_only\\.tar\\.gz$"
-  darwin/arm64:
-    - "cpython-.*-aarch64-apple-darwin-install_only\\.tar\\.gz$"
-  windows/amd64:
-    - "cpython-.*-x86_64-pc-windows-msvc-install_only\\.tar\\.gz$"
+# Two build flavors from python-build-standalone:
+#   default (unnamed) -> install_only           -> bare tags (3.13, 3.13.9, ...)
+#   slim              -> install_only_stripped  -> slim-prefixed tags (slim-3.13, ...)
+variants:
+  - default: true
+    assets:
+      linux/amd64:
+        - "cpython-.*-x86_64-unknown-linux-gnu-install_only\\.tar\\.gz$"
+      linux/arm64:
+        - "cpython-.*-aarch64-unknown-linux-gnu-install_only\\.tar\\.gz$"
+      darwin/amd64:
+        - "cpython-.*-x86_64-apple-darwin-install_only\\.tar\\.gz$"
+      darwin/arm64:
+        - "cpython-.*-aarch64-apple-darwin-install_only\\.tar\\.gz$"
+      windows/amd64:
+        - "cpython-.*-x86_64-pc-windows-msvc-install_only\\.tar\\.gz$"
+  - name: slim
+    assets:
+      linux/amd64:
+        - "cpython-.*-x86_64-unknown-linux-gnu-install_only_stripped\\.tar\\.gz$"
+      linux/arm64:
+        - "cpython-.*-aarch64-unknown-linux-gnu-install_only_stripped\\.tar\\.gz$"
+      darwin/amd64:
+        - "cpython-.*-x86_64-apple-darwin-install_only_stripped\\.tar\\.gz$"
+      darwin/arm64:
+        - "cpython-.*-aarch64-apple-darwin-install_only_stripped\\.tar\\.gz$"
+      windows/amd64:
+        - "cpython-.*-x86_64-pc-windows-msvc-install_only_stripped\\.tar\\.gz$"
 
 asset_type:
   type: archive

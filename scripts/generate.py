@@ -21,8 +21,11 @@ import time
 import urllib.error
 import urllib.request
 
+# Matches both the default (`install_only`) and slim (`install_only_stripped`)
+# build flavors. Both asset names are emitted into the index under the same
+# (version, build_date); mirror.yml variant patterns route each to its tag.
 FILENAME_RE = re.compile(
-    r"^cpython-(\d+\.\d+\.\d+)\+(\d+)-(.+)-install_only\.tar\.gz$"
+    r"^cpython-(\d+\.\d+\.\d+)\+(\d+)-(.+)-install_only(?:_stripped)?\.tar\.gz$"
 )
 
 PLATFORMS = {
