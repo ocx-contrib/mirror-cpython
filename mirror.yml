@@ -1,0 +1,75 @@
+name: cpython
+target:
+  registry: ocx.sh
+  repository: cpython
+
+source:
+  type: url_index
+  generator:
+    command: ["python3", "scripts/generate.py"]
+    timeout_seconds: 240
+
+assets:
+  linux/amd64:
+    - "cpython-.*-x86_64-unknown-linux-gnu-install_only\\.tar\\.gz$"
+  linux/arm64:
+    - "cpython-.*-aarch64-unknown-linux-gnu-install_only\\.tar\\.gz$"
+  darwin/amd64:
+    - "cpython-.*-x86_64-apple-darwin-install_only\\.tar\\.gz$"
+  darwin/arm64:
+    - "cpython-.*-aarch64-apple-darwin-install_only\\.tar\\.gz$"
+  windows/amd64:
+    - "cpython-.*-x86_64-pc-windows-msvc-install_only\\.tar\\.gz$"
+
+asset_type:
+  type: archive
+  strip_components: 1
+
+metadata:
+  default: metadata.json
+  platforms:
+    windows/amd64: metadata-windows.json
+
+skip_prereleases: true
+cascade: true
+build_timestamp: none
+
+# Single contiguous range spans 3.12.x – 3.14.x. Per-minor patch floors are
+# enforced in scripts/generate.py so historical patches do not bootstrap into
+# the mirror on first run. Bump max when 3.15 ships.
+versions:
+  min: "3.12.13+0"
+  max: "3.14"
+  new_per_run: 9
+  poll_interval: "0 */6 * * *"
+
+concurrency:
+  max_downloads: 4
+  max_bundles: 2
+  max_pushes: 2
+  rate_limit_ms: 200
+  max_retries: 3
+  compression_threads: 0
+
+tests:
+  - name: smoke
+    script: tests/smoke.star
+
+platforms:
+  linux/amd64:
+    runner: ubuntu-latest
+  linux/arm64:
+    runner: ubuntu-24.04-arm
+  darwin/amd64:
+    runner: macos-latest
+    prefix: ["arch", "-x86_64"]
+  darwin/arm64:
+    runner: macos-latest
+    shell: bash
+  windows/amd64:
+    runner: windows-latest
+    shell: pwsh
+
+notify:
+  discord:
+    webhook_secret: OCX_MIRROR_DISCORD_HOOK

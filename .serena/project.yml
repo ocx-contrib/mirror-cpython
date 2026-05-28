@@ -1,0 +1,13 @@
+project_name: "mirror-cpython"
+
+encoding: "utf-8"
+line_ending: "native"
+language_backend: "LSP"
+ignore_all_files_in_gitignore: true
+
+languages:
+  - python
+  - yaml
+  - json
+  - toml
+  - markdown

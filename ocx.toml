@@ -1,0 +1,5 @@
+[tools]
+cli = "dev.ocx.sh/ocx/cli:0.4.0-dev"
+mirror = "dev.ocx.sh/ocx/mirror:0.4.0-dev"
+
+[group]
