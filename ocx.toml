@@ -1,5 +1,4 @@
 [tools]
-cli = "dev.ocx.sh/ocx/cli:0.3.5-dev_20260601143017"
-mirror = "dev.ocx.sh/ocx/mirror:0.3.5-dev_20260601143017"
-
-[group]
+cli = "dev.ocx.sh/ocx/cli:0.3.5-dev"
+mirror = "dev.ocx.sh/ocx/mirror:0.3.5-dev"
+uv = "ocx.sh/uv:0"

@@ -40,7 +40,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          ocx run -- ocx-mirror pipeline plan --format json > plan.json
+          ocx-mirror pipeline plan --format json > plan.json
           echo "has_new=$(jq -r '.has_new' plan.json)" >> "${GITHUB_OUTPUT}"
           echo "versions=$(jq -c '.versions' plan.json)" >> "${GITHUB_OUTPUT}"
           echo "target=$(jq -r '.target' plan.json)" >> "${GITHUB_OUTPUT}"
@@ -65,7 +65,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          ocx run -- ocx-mirror pipeline prepare --version "${{ matrix.version.version }}"
+          ocx-mirror pipeline prepare --version "${{ matrix.version.version }}"
           # Flatten .ocx-mirror/{V}/{P}/bundle.tar.xz → bundles/bundle-{V}-{P_slug}.tar.xz
           # and copy the per-platform metadata.json written by `pipeline prepare`
           # as sibling so `ocx package test` auto-discovers the correct override
@@ -189,15 +189,15 @@ jobs:
               RC=0
               if [ "${TEST_KIND}" = "command" ]; then
                 TEST_CMD=$(echo "${TESTS_JSON}" | jq -r ".[$i].command")
-                ocx run -- ocx package test --platform "${{ matrix.platform }}" --identifier "ocx.sh/cpython:${VERSION}" "${BUNDLE}" -- \
+                ocx package test --platform "${{ matrix.platform }}" --identifier "ocx.sh/cpython:${VERSION}" "${BUNDLE}" -- \
                   ${{ matrix.shell }} -c "${TEST_CMD}" || RC=$?
               elif [ "${TEST_KIND}" = "script" ]; then
                 TEST_SCRIPT=$(echo "${TESTS_JSON}" | jq -r ".[$i].script")
-                ocx run -- ocx package test --platform "${{ matrix.platform }}" --identifier "ocx.sh/cpython:${VERSION}" "${BUNDLE}" \
+                ocx package test --platform "${{ matrix.platform }}" --identifier "ocx.sh/cpython:${VERSION}" "${BUNDLE}" \
                   --script "${TEST_SCRIPT}" || RC=$?
               else
                 TEST_INLINE=$(echo "${TESTS_JSON}" | jq -r ".[$i].script_inline")
-                printf '%s' "${TEST_INLINE}" | ocx run -- ocx package test --platform "${{ matrix.platform }}" --identifier "ocx.sh/cpython:${VERSION}" "${BUNDLE}" \
+                printf '%s' "${TEST_INLINE}" | ocx package test --platform "${{ matrix.platform }}" --identifier "ocx.sh/cpython:${VERSION}" "${BUNDLE}" \
                   --script - || RC=$?
               fi
               END=$(date +%s)
@@ -299,19 +299,12 @@ jobs:
             --jq '.jobs[] | select(.name == "push") | .html_url' \
             | head -n1 || true)
           export OCX_MIRROR_JOB_URL
-          # Use eval-of-`ocx env --shell=sh` instead of `ocx run --`.
-          # Reason: `ocx run` (host stable from setup-ocx) calls
-          # apply_ocx_config(self_exe=<host>), which sets OCX_BINARY_PIN
-          # to the host binary in the child env. ocx-mirror then spawns
-          # `ocx package push --format json` via PIN — the host (older)
-          # ocx is invoked and may emit a different stdout shape, so the
-          # JSON parse fails. The eval form composes the project-tier
-          # env into this shell without propagating PIN, so ocx-mirror's
-          # PATH-resolution finds the dev cli first. (Discover, prepare,
-          # test, notify don't trigger PIN-driven re-spawns, so they keep
-          # using `ocx run --`.)
-          eval "$(ocx env --shell=sh)"
-          unset OCX_BINARY_PIN
+          # Call ocx-mirror directly — NOT via `ocx run --`. setup-ocx has
+          # already activated the project toolchain (`ocx --project env`), so the
+          # dev ocx + ocx-mirror are on PATH for this step. Wrapping in
+          # `ocx run` would set OCX_BINARY_PIN to the bootstrap ocx, and the
+          # nested `ocx package push --format json` would then resolve that
+          # (older) binary, emit no JSON report, and be misrecorded as a red.
           ocx-mirror pipeline push \
             --bundles-dir .artifacts/bundles \
             --junit-dir .artifacts/junit \
@@ -364,6 +357,6 @@ jobs:
           name: run-summary
       - name: Notify
         run: |
-          ocx run -- ocx-mirror pipeline notify --run-summary run-summary.json
+          ocx-mirror pipeline notify --run-summary run-summary.json
         env:
           OCX_MIRROR_DISCORD_HOOK: ${{ secrets.OCX_MIRROR_DISCORD_HOOK }}

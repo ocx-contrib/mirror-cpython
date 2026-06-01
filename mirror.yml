@@ -6,7 +6,7 @@ target:
 source:
   type: url_index
   generator:
-    command: ["python3", "scripts/generate.py"]
+    command: ["uv", "run", "scripts/generate.py"]
     timeout_seconds: 240
 
 # Two build flavors from python-build-standalone:

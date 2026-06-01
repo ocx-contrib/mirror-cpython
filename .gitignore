@@ -11,3 +11,4 @@ junit/
 # Editor
 .vscode/
 .idea/
+.serena/

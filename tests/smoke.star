@@ -1,18 +1,26 @@
-PY = "python.exe" if str(ocx.target_platform.os) == "windows" else "python3"
+# tests/smoke.star — stable across upstream releases.
+# CPython ships PATH only (no non-PATH env var in metadata.json), so the
+# contract is Tiers 1-3: liveness, version shape, and hermetic computation.
+PY = "python.exe" if ocx.target_platform.os == ocx.os.Windows else "python3"
 
-r_version = ocx.run(PY, "--version")
-expect.ok(r_version)
-expect.eq(r_version.exit_code, 0)
-expect.contains(r_version.stdout + r_version.stderr, "Python 3.")
+# Tier 1 + 2: liveness + version shape (digits are the contract, not "Python").
+# python prints --version to stdout on modern releases; fall back to stderr.
+r = ocx.run(PY, "--version")
+expect.ok(r)
+expect.matches(r.stdout + r.stderr, r"\d+\.\d+\.\d+")
 
-r_math = ocx.run(PY, "-c", "print(40 + 2)")
-expect.eq(r_math.exit_code, 0)
-expect.contains(r_math.stdout, "42")
+# Tier 3: hermetic computation — exercises the real interpreter code path.
+r = ocx.run(PY, "-c", "print(40 + 2)")
+expect.ok(r)
+expect.contains(r.stdout, "42")
 
-r_json = ocx.run(PY, "-c", "import json,sys; sys.stdout.write(json.dumps({'ok': True, 'n': 7}))")
-expect.eq(r_json.exit_code, 0)
-expect.contains(r_json.stdout, "\"ok\": true")
+# Tier 3: stdlib import + structured output — proves a usable runtime, not a stub.
+r = ocx.run(PY, "-c", "import json,sys; sys.stdout.write(json.dumps({'ok': True, 'n': 7}))")
+expect.ok(r)
+expect.contains(r.stdout, "\"ok\": true")
 
-r_ssl = ocx.run(PY, "-c", "import ssl; print(ssl.OPENSSL_VERSION)")
-expect.eq(r_ssl.exit_code, 0)
-expect.contains(r_ssl.stdout, "OpenSSL")
+# Tier 3: the _ssl extension module is present and links (a common breakage in
+# relocatable builds). Assert the import succeeds, not any version string.
+r = ocx.run(PY, "-c", "import ssl; print(ssl.OPENSSL_VERSION_NUMBER)")
+expect.ok(r)
+expect.matches(r.stdout, r"\d+")
