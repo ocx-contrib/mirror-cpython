@@ -1,4 +1,4 @@
-PY = "python.exe" if ocx.platform()["os"] == "windows" else "python3"
+PY = "python.exe" if str(ocx.target_platform.os) == "windows" else "python3"
 
 r_version = ocx.run(PY, "--version")
 expect.ok(r_version)
