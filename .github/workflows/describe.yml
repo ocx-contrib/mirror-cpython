@@ -52,4 +52,4 @@ jobs:
       - name: Publish catalog metadata
         if: ${{ steps.creds.outputs.have == 'true' }}
         run: |
-          ocx-mirror pipeline describe
+          ocx run -- ocx-mirror pipeline describe
