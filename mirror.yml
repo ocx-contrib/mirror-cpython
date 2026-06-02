@@ -78,10 +78,12 @@ platforms:
   linux/arm64:
     runner: ubuntu-24.04-arm
   darwin/amd64:
-    runner: macos-latest
+    # Intel slice tested on the arm64 macos-14 runner via Rosetta 2 (GitHub's
+    # macos-13 Intel pool is exhausted and deadlocks the push job).
+    runner: macos-14
     prefix: ["arch", "-x86_64"]
   darwin/arm64:
-    runner: macos-latest
+    runner: macos-14
     shell: bash
   windows/amd64:
     runner: windows-latest
