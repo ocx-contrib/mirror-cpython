@@ -3,7 +3,7 @@
 # dependencies = ["ocx-mirror-sdk"]
 #
 # [tool.uv.sources]
-# ocx-mirror-sdk = { url = "https://github.com/ocx-sh/ocx-mirror-sdk/releases/download/v0.5.1/ocx_mirror_sdk-0.5.1-py3-none-any.whl" }
+# ocx-mirror-sdk = { url = "https://github.com/ocx-sh/ocx-mirror-sdk/releases/download/v0.5.2/ocx_mirror_sdk-0.5.2-py3-none-any.whl" }
 # ///
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 The OCX Authors
