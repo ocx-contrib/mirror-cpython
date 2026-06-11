@@ -3,7 +3,7 @@
 # dependencies = ["ocx-mirror-sdk"]
 #
 # [tool.uv.sources]
-# ocx-mirror-sdk = { url = "https://github.com/ocx-sh/ocx-mirror-sdk/releases/download/v0.4.2/ocx_mirror_sdk-0.4.2-py3-none-any.whl" }
+# ocx-mirror-sdk = { url = "https://github.com/ocx-sh/ocx-mirror-sdk/releases/download/v0.5.0/ocx_mirror_sdk-0.5.0-py3-none-any.whl" }
 # ///
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 The OCX Authors
@@ -70,12 +70,16 @@ def below_floor(py_version: str) -> bool:
 
 
 def main() -> int:
-    # python-build-standalone carries thousands of assets per release; the
-    # GitHub REST releases endpoint 504s under that load, so fetch over GraphQL.
+    # python-build-standalone carries hundreds of assets per release. The REST
+    # list endpoint 504s at per_page=100 under that load, but ocx-mirror-sdk's
+    # REST backend pages down adaptively (falls back to per_page=10) and reads
+    # the inline asset list — a full crawl is ~13 requests. REST is far cheaper
+    # on the rate budget than GraphQL (request-count vs a points budget that the
+    # N concurrent CI prepare legs were exhausting → graphql_rate_limit).
     releases = list(
         github.list_releases(
             REPO,
-            backend=github.Backend.GRAPHQL,
+            backend=github.Backend.REST,
             include_prereleases=False,
             include_drafts=False,
         )
